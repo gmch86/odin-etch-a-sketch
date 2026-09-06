@@ -1,11 +1,23 @@
-// Initialize 16x16 grid
-const gridContainer = createGrid(16);
+DEFAULT_SIZE = 16;
 
-// Grid container listeners
+// Initialize 16x16 grid
+const gridContainer = createGrid(DEFAULT_SIZE);
+let isPainting = false;
+
 gridContainer.addEventListener("mouseover", (e) => {
-  if (e.target.classList.contains("tile")) {
-    handleTileMouseOver(e);
+  if (e.target.classList.contains("tile") && isPainting) {
+    fillTile(e.target);
   }
+});
+
+gridContainer.addEventListener("mousedown", (e) => {
+  e.preventDefault(); // Prevent dragging
+
+  isPainting = true;
+});
+
+gridContainer.addEventListener("mouseup", (e) => {
+  isPainting = false;
 });
 
 // Build grid button
@@ -18,6 +30,7 @@ buildGridBtn.addEventListener("click", (e) => {
 
 // Grid size input
 const gridSizeInput = document.querySelector("#grid-size");
+gridSizeInput.value = DEFAULT_SIZE;
 
 gridSizeInput.addEventListener("input", (e) => {
   // Remove non-integers from the input
@@ -37,14 +50,6 @@ gridSizeInput.addEventListener("change", (e) => {
 const clearGridBtn = document.querySelector(".clear-grid-btn");
 
 clearGridBtn.addEventListener("click", clearTiles);
-
-// Color selector input
-const colorInput = document.querySelector("#color-select");
-let selectedColor = colorInput.value;
-
-colorInput.addEventListener("change", (e) => {
-  selectedColor = e.target.value;
-});
 
 // #################################################################
 
@@ -78,9 +83,8 @@ function clearTiles() {
   });
 }
 
-function handleTileMouseOver(e) {
-  const fillOnHoverCheckbox = document.querySelector("#fill-on-hover");
+function fillTile(tile) {
+  const colorInput = document.querySelector("#color-select");
 
-  if (fillOnHoverCheckbox.checked)
-    e.target.style.backgroundColor = selectedColor;
+  tile.style.backgroundColor = colorInput.value;
 }

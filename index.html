@@ -10,17 +10,14 @@
   <body>
     <header><h1>Etch-a-sketch</h1></header>
     <main>
-      <label for="fill-on-hover"
-        >Fill on hover<input type="checkbox" id="fill-on-hover"
-      /></label>
       <label for="grid-size"
-        >Grid Size<input type="text" id="grid-size" placeholder="16"
+        >Grid Size<input type="text" id="grid-size"
       /></label>
       <button type="button" class="build-grid-btn">Build</button>
       <button type="button" class="clear-grid-btn">Clear</button>
-      <label for="color-select"
-        >Colour<input type="color" id="color-select"
-      /></label>
+      <div class="color-select-container">
+        <input type="color" title="color-select" id="color-select" />
+      </div>
       <div class="grid-container"></div>
     </main>
     <footer>

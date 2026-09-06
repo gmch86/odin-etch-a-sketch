@@ -18,3 +18,22 @@
   outline: 1px solid black;
   flex: 1;
 }
+
+.color-select-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 100%;
+  border-style: outset;
+  border-color: black;
+  overflow: hidden;
+}
+
+#color-select {
+  all: unset;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  flex-shrink: 0;
+}
