@@ -10,7 +10,17 @@
   <body>
     <header><h1>Etch-a-sketch</h1></header>
     <main>
-      <div class="canvas-container"></div>
+      <label for="fill-on-hover"
+        >Fill on hover<input type="checkbox" id="fill-on-hover"
+      /></label>
+      <label for="grid-size"
+        >Grid Size<input type="text" id="grid-size" placeholder="16"
+      /></label>
+      <button type="button" class="build-grid-btn">Build Grid</button>
+      <label for="color-select"
+        >Colour<input type="color" id="color-select"
+      /></label>
+      <div class="grid-container"></div>
     </main>
     <footer>
       <p>&copy; 2026 gmch86 - The Odin Project</p>
