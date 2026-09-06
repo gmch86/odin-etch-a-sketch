@@ -16,7 +16,7 @@ gridContainer.addEventListener("mousedown", (e) => {
   isPainting = true;
 });
 
-gridContainer.addEventListener("mouseup", (e) => {
+document.addEventListener("mouseup", (e) => {
   isPainting = false;
 });
 
