@@ -33,6 +33,11 @@ gridSizeInput.addEventListener("change", (e) => {
   }
 });
 
+// Button for removing the colors on all grid tiles
+const clearGridBtn = document.querySelector(".clear-grid-btn");
+
+clearGridBtn.addEventListener("click", clearTiles);
+
 // Color selector input
 const colorInput = document.querySelector("#color-select");
 let selectedColor = colorInput.value;
@@ -66,7 +71,9 @@ function createGrid(size) {
 }
 
 function clearTiles() {
-  tiles.forEach((tile) => {
+  const tiles = document.querySelectorAll(".tile");
+
+  [...tiles].forEach((tile) => {
     tile.style.backgroundColor = "";
   });
 }
