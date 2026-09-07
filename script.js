@@ -1,6 +1,7 @@
 const canvasData = {
   gridSize: 16,
   defaultColor: "rgb(255, 255, 255)",
+  selectedColor: null,
   paintMode: "fill",
   isPainting: false,
 };
@@ -24,7 +25,7 @@ document.addEventListener("mouseup", (e) => {
 
 // Grid size input
 const gridSizeInput = document.querySelector("#grid-size");
-gridSizeInput.value = canvasData.size;
+gridSizeInput.value = canvasData.gridSize;
 
 gridSizeInput.addEventListener("input", (e) => {
   // Remove non-integers from the input
@@ -40,6 +41,17 @@ gridSizeInput.addEventListener("change", (e) => {
   }
 });
 
+// Color selector
+const colorInput = document.querySelector("#color-select");
+
+colorInput.addEventListener("change", (e) => {
+  // Convert input value to rgb and assign to selected colour
+  const { r, g, b } = getRGBValues(e.target.value);
+  canvasData.selectedColor = `rgb(${r}, ${g}, ${b})`;
+});
+
+colorInput.dispatchEvent(new Event("change")); // Set the selected colour in rgb format
+
 // Build grid button
 const buildGridBtn = document.querySelector(".build-grid-btn");
 buildGridBtn.addEventListener("click", (e) => {
@@ -47,7 +59,7 @@ buildGridBtn.addEventListener("click", (e) => {
   createGrid(size);
 });
 
-// Button for removing the colors on all grid tiles
+// Button for removing the colours on all grid tiles
 const clearGridBtn = document.querySelector(".clear-grid-btn");
 clearGridBtn.addEventListener("click", clearTiles);
 
@@ -67,7 +79,27 @@ darkenBtn.addEventListener("click", (e) => (canvasData.paintMode = "darken"));
 const lightenBtn = document.querySelector(".lighten-btn");
 lightenBtn.addEventListener("click", (e) => (canvasData.paintMode = "lighten"));
 
+// Erase for erase paint mode
+const eraserBtn = document.querySelector(".eraser-btn");
+eraserBtn.addEventListener("click", (e) => (canvasData.paintMode = "erase"));
+
 // #############################################################################
+
+function getRGBValues(color) {
+  const values = {};
+
+  if (color[0] === "#") {
+    // Hex
+    values.r = parseInt(color.slice(1, 3), 16);
+    values.g = parseInt(color.slice(3, 5), 16);
+    values.b = parseInt(color.slice(5, 7), 16);
+  } else {
+    // RGB
+    [values.r, values.g, values.b] = color.replace(/rgb|\(|\)/g, "").split(",");
+  }
+
+  return { r: +values.r, g: +values.g, b: +values.b };
+}
 
 function createGrid(size) {
   const gridContainer = document.querySelector(".grid-container");
@@ -90,43 +122,73 @@ function createGrid(size) {
   return gridContainer;
 }
 
-function getRGBValues(color) {
-  const values = {};
-
-  if (color[0] === "#") {
-    // Hex
-    values.r = parseInt(color.slice(1, 3), 16);
-    values.g = parseInt(color.slice(3, 5), 16);
-    values.b = parseInt(color.slice(5, 7), 16);
-  } else {
-    // RGB
-    [values.r, values.g, values.b] = color.replace(/rgb|\(|\)/g, "").split(",");
-  }
-
-  return { r: +values.r, g: +values.g, b: +values.b };
-}
-
 function paint(tile) {
-  if (!tile.classList.contains("tile"));
+  if (!tile.classList.contains("tile")) return;
 
-  const selectedColor = document.querySelector("#color-select").value;
+  // Get the color / RGB values of tile and selected color
   const tileColor = tile.style.backgroundColor;
-
-  const selectedRGBValues = getRGBValues(selectedColor);
+  const selectedColor = canvasData.selectedColor;
   const tileRGBValues = getRGBValues(tileColor);
+  const selectedRGBValues = getRGBValues(selectedColor);
+
+  // Gradually transforms the RGB values of a tile
+  const blendTile = (tileRGBValues, selectedRGBValues) => {
+    const getIncrementedValue = (fromValue, toValue) => {
+      // Get an increment value of at least 5
+      const increment = Math.max(
+        5,
+        Math.ceil(Math.abs((toValue - fromValue) / 10)),
+      );
+
+      if (fromValue > toValue) {
+        // Decrement fromValue to reach toValue
+        return Math.max(toValue, fromValue - increment);
+      } else if (fromValue < toValue) {
+        // Increment fromValue to reach toValue
+        return Math.min(toValue, fromValue + increment);
+      } else {
+        // Values are equal
+        return toValue;
+      }
+    };
+
+    if (
+      tileRGBValues.r !== selectedRGBValues.r ||
+      tileRGBValues.g !== selectedRGBValues.g ||
+      tileRGBValues.b !== selectedRGBValues.b
+    ) {
+      const incrementedR = getIncrementedValue(
+        tileRGBValues.r,
+        selectedRGBValues.r,
+      );
+      const incrementedG = getIncrementedValue(
+        tileRGBValues.g,
+        selectedRGBValues.g,
+      );
+      const incrementedB = getIncrementedValue(
+        tileRGBValues.b,
+        selectedRGBValues.b,
+      );
+
+      tile.style.backgroundColor = `rgb(${incrementedR}, ${incrementedG}, ${incrementedB})`;
+    }
+  };
 
   switch (canvasData.paintMode) {
     case "fill":
-      fillTile(tile, selectedRGBValues);
+      tile.style.backgroundColor = `rgb(${selectedRGBValues.r}, ${selectedRGBValues.g}, ${selectedRGBValues.b})`;
       break;
     case "blend":
-      blendTile(tile, tileRGBValues, selectedRGBValues);
+      blendTile(tileRGBValues, selectedRGBValues);
       break;
     case "darken":
-      changeTileBrightness(tile, tileRGBValues, "darken");
+      blendTile(tileRGBValues, { r: 0, g: 0, b: 0 });
       break;
     case "lighten":
-      changeTileBrightness(tile, tileRGBValues, "lighten");
+      blendTile(tileRGBValues, { r: 255, g: 255, b: 255 });
+      break;
+    case "erase":
+      tile.style.backgroundColor = canvasData.defaultColor;
       break;
   }
 }
@@ -136,62 +198,4 @@ function clearTiles() {
   [...tiles].forEach((tile) => {
     tile.style.backgroundColor = canvasData.defaultColor;
   });
-}
-
-function fillTile(tile, rgbValues) {
-  const { r, g, b } = rgbValues;
-  tile.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-}
-
-// Gradually converts tile color to selectedRGBValues
-function blendTile(tile, tileRGBValues, selectedRGBValues) {
-  const getIncrementedValue = (fromValue, toValue) => {
-    // Get an increment value of at least 5
-    const increment = Math.max(
-      5,
-      Math.ceil(Math.abs((toValue - fromValue) / 10)),
-    );
-
-    if (fromValue > toValue) {
-      // Decrement fromValue to reach toValue
-      return Math.max(toValue, fromValue - increment);
-    } else if (fromValue < toValue) {
-      // Increment fromValue to reach toValue
-      return Math.min(toValue, fromValue + increment);
-    } else {
-      // Values are equal
-      return toValue;
-    }
-  };
-
-  if (
-    tileRGBValues.r !== selectedRGBValues.r ||
-    tileRGBValues.g !== selectedRGBValues.g ||
-    tileRGBValues.b !== selectedRGBValues.b
-  ) {
-    const incrementedR = getIncrementedValue(
-      tileRGBValues.r,
-      selectedRGBValues.r,
-    );
-    const incrementedG = getIncrementedValue(
-      tileRGBValues.g,
-      selectedRGBValues.g,
-    );
-    const incrementedB = getIncrementedValue(
-      tileRGBValues.b,
-      selectedRGBValues.b,
-    );
-
-    tile.style.backgroundColor = `rgb(${incrementedR}, ${incrementedG}, ${incrementedB})`;
-  }
-}
-
-function changeTileBrightness(tile, tileRGBValues, type) {
-  const increment = type === "darken" ? -10 : type === "lighten" ? 10 : 0;
-
-  tileRGBValues.r = Math.min(255, Math.max(0, tileRGBValues.r + increment));
-  tileRGBValues.g = Math.min(255, Math.max(0, tileRGBValues.g + increment));
-  tileRGBValues.b = Math.min(255, Math.max(0, tileRGBValues.b + increment));
-
-  tile.style.backgroundColor = `rgb(${tileRGBValues.r}, ${tileRGBValues.g}, ${tileRGBValues.b})`;
 }
