@@ -82,46 +82,55 @@ function createGrid(size) {
   return gridContainer;
 }
 
-function hexToRGB(hex) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+function getRGBValues(color) {
+  const values = {};
 
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : null;
+  if (color[0] === "#") {
+    // Hex
+    values.r = parseInt(color.slice(1, 3), 16);
+    values.g = parseInt(color.slice(3, 5), 16);
+    values.b = parseInt(color.slice(5, 7), 16);
+  } else {
+    // RGB
+    [values.r, values.g, values.b] = color.replace(/rgb|\(|\)/g, "").split(",");
+  }
+
+  return { r: +values.r, g: +values.g, b: +values.b };
 }
 
-function paint(target) {
-  const color = hexToRGB(document.querySelector("#color-select").value);
-  const isValidTarget = target.classList.contains("tile");
+function paint(tile) {
+  if (!tile.classList.contains("tile"));
 
-  if (isValidTarget) {
-    switch (canvasData.paintMode) {
-      case "fill":
-        fillTile(target, `rgb(${color.r}, ${color.g}, ${color.b})`);
-        break;
-      case "blend":
-        blendTile(target, `rgb(${color.r}, ${color.g}, ${color.b})`);
-        break;
-    }
+  const selectedColor = document.querySelector("#color-select").value;
+  const tileColor = tile.style.backgroundColor;
+
+  const selectedRGBValues = getRGBValues(selectedColor);
+  const tileRGBValues = getRGBValues(tileColor);
+
+  switch (canvasData.paintMode) {
+    case "fill":
+      fillTile(tile, selectedRGBValues);
+      break;
+    case "blend":
+      blendTile(tile, tileRGBValues, selectedRGBValues);
+      break;
   }
 }
 
 function clearTiles() {
   const tiles = document.querySelectorAll(".tile");
   [...tiles].forEach((tile) => {
-    tile.style.backgroundColor = DEFAULT_COLOR;
+    tile.style.backgroundColor = canvasData.defaultColor;
   });
 }
 
-function fillTile(tile, color) {
-  tile.style.backgroundColor = color;
+function fillTile(tile, rgbValues) {
+  const { r, g, b } = rgbValues;
+  tile.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
 }
 
-function blendTile(tile, color) {
+// Gradually converts tile color to selectedRGBValues
+function blendTile(tile, tileRGBValues, selectedRGBValues) {
   const getIncrementedValue = (fromValue, toValue) => {
     // Get an increment value of at least 5
     const increment = Math.max(
@@ -141,26 +150,22 @@ function blendTile(tile, color) {
     }
   };
 
-  const tileColor = tile.style.backgroundColor;
-  const tileRgbValues = tileColor.replace(/rgb|\(|\)/g, "").split(",");
-  const colorRgbValues = color.replace(/rgb|\(|\)/g, "").split(",");
-
   if (
-    tileRgbValues[0] !== colorRgbValues[0] ||
-    tileRgbValues[1] !== colorRgbValues[1] ||
-    tileRgbValues[2] !== colorRgbValues[2]
+    tileRGBValues.r !== selectedRGBValues.r ||
+    tileRGBValues.g !== selectedRGBValues.g ||
+    tileRGBValues.b !== selectedRGBValues.b
   ) {
     const incrementedR = getIncrementedValue(
-      +tileRgbValues[0],
-      +colorRgbValues[0],
+      tileRGBValues.r,
+      selectedRGBValues.r,
     );
     const incrementedG = getIncrementedValue(
-      +tileRgbValues[1],
-      +colorRgbValues[1],
+      tileRGBValues.g,
+      selectedRGBValues.g,
     );
     const incrementedB = getIncrementedValue(
-      +tileRgbValues[2],
-      +colorRgbValues[2],
+      tileRGBValues.b,
+      selectedRGBValues.b,
     );
 
     tile.style.backgroundColor = `rgb(${incrementedR}, ${incrementedG}, ${incrementedB})`;
