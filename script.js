@@ -59,7 +59,15 @@ fillBtn.addEventListener("click", (e) => (canvasData.paintMode = "fill"));
 const blendBtn = document.querySelector(".blend-btn");
 blendBtn.addEventListener("click", (e) => (canvasData.paintMode = "blend"));
 
-// #################################################################
+// Button for darken paint mode
+const darkenBtn = document.querySelector(".darken-btn");
+darkenBtn.addEventListener("click", (e) => (canvasData.paintMode = "darken"));
+
+// Button for lighten paint mode
+const lightenBtn = document.querySelector(".lighten-btn");
+lightenBtn.addEventListener("click", (e) => (canvasData.paintMode = "lighten"));
+
+// #############################################################################
 
 function createGrid(size) {
   const gridContainer = document.querySelector(".grid-container");
@@ -113,6 +121,12 @@ function paint(tile) {
       break;
     case "blend":
       blendTile(tile, tileRGBValues, selectedRGBValues);
+      break;
+    case "darken":
+      changeTileBrightness(tile, tileRGBValues, "darken");
+      break;
+    case "lighten":
+      changeTileBrightness(tile, tileRGBValues, "lighten");
       break;
   }
 }
@@ -170,4 +184,14 @@ function blendTile(tile, tileRGBValues, selectedRGBValues) {
 
     tile.style.backgroundColor = `rgb(${incrementedR}, ${incrementedG}, ${incrementedB})`;
   }
+}
+
+function changeTileBrightness(tile, tileRGBValues, type) {
+  const increment = type === "darken" ? -10 : type === "lighten" ? 10 : 0;
+
+  tileRGBValues.r = Math.min(255, Math.max(0, tileRGBValues.r + increment));
+  tileRGBValues.g = Math.min(255, Math.max(0, tileRGBValues.g + increment));
+  tileRGBValues.b = Math.min(255, Math.max(0, tileRGBValues.b + increment));
+
+  tile.style.backgroundColor = `rgb(${tileRGBValues.r}, ${tileRGBValues.g}, ${tileRGBValues.b})`;
 }
