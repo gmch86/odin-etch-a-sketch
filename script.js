@@ -79,11 +79,10 @@ const buildGridBtn = document.querySelector(".build-grid-btn");
 buildGridBtn.addEventListener("click", (e) => {
   const size = gridSizeInput.value || canvasData.size;
   createGrid(size);
-});
 
-// Button for removing the colours on all grid tiles
-const clearGridBtn = document.querySelector(".clear-grid-btn");
-clearGridBtn.addEventListener("click", clearTiles);
+  canvasData.undoHistory.length = 0;
+  canvasData.redoHistory.length = 0;
+});
 
 // Button for fill paint mode
 const fillBtn = document.querySelector(".fill-btn");
@@ -221,16 +220,6 @@ function paint(tile) {
       tile.style.backgroundColor = canvasData.defaultColor;
       break;
   }
-}
-
-function clearTiles() {
-  const tiles = document.querySelectorAll(".tile");
-  [...tiles].forEach((tile) => {
-    tile.style.backgroundColor = canvasData.defaultColor;
-  });
-
-  canvasData.undoHistory.length = 0;
-  canvasData.redoHistory.length = 0;
 }
 
 function handleHistory(tile) {
