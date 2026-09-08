@@ -4,23 +4,45 @@ const canvasData = {
   selectedColor: null,
   paintMode: "fill",
   isPainting: false,
+  undoHistory: [],
+  redoHistory: [],
+  undoLimit: 10,
 };
 
 // Initialize 16x16 grid
 const gridContainer = createGrid(canvasData.gridSize);
 gridContainer.addEventListener("mouseover", (e) => {
-  if (canvasData.isPainting) paint(e.target);
+  if (canvasData.isPainting) {
+    handleHistory(e.target);
+    paint(e.target);
+  }
 });
 
 gridContainer.addEventListener("mousedown", (e) => {
   e.preventDefault(); // Prevent dragging
 
   canvasData.isPainting = true;
+
+  // Push empty stroke array to history array
+  canvasData.undoHistory.push([]);
+
+  handleHistory(e.target);
   paint(e.target);
 });
 
 document.addEventListener("mouseup", (e) => {
-  canvasData.isPainting = false;
+  if (canvasData.isPainting) {
+    canvasData.isPainting = false;
+
+    // Update history objects
+    const pointer = canvasData.undoHistory.length - 1;
+    canvasData.undoHistory[pointer].forEach(({ tile }) => handleHistory(tile));
+
+    // Shift stroke arrays if undo limit reached
+    if (canvasData.undoHistory.length > canvasData.undoLimit) {
+      canvasData.undoHistory.shift();
+    }
+  }
 });
 
 // Grid size input
@@ -82,6 +104,14 @@ lightenBtn.addEventListener("click", (e) => (canvasData.paintMode = "lighten"));
 // Erase for erase paint mode
 const eraserBtn = document.querySelector(".eraser-btn");
 eraserBtn.addEventListener("click", (e) => (canvasData.paintMode = "erase"));
+
+// Undo button
+const undoBtn = document.querySelector(".undo-btn");
+undoBtn.addEventListener("click", undo);
+
+// Redo button
+const redoBtn = document.querySelector(".redo-btn");
+redoBtn.addEventListener("click", redo);
 
 // #############################################################################
 
@@ -198,4 +228,52 @@ function clearTiles() {
   [...tiles].forEach((tile) => {
     tile.style.backgroundColor = canvasData.defaultColor;
   });
+
+  canvasData.undoHistory.length = 0;
+  canvasData.redoHistory.length = 0;
+}
+
+function handleHistory(tile) {
+  const pointer = canvasData.undoHistory.length - 1;
+  const historyObj = canvasData.undoHistory[pointer].find(
+    (obj) => obj.tile === tile,
+  );
+
+  if (historyObj) {
+    // Update the object
+    historyObj.toColor = historyObj.tile.style.backgroundColor;
+  } else {
+    // Create new object and add to history
+    const obj = {
+      tile: tile,
+      fromColor: tile.style.backgroundColor,
+      toColor: null,
+    };
+
+    canvasData.undoHistory[pointer].push(obj);
+    canvasData.redoHistory.length = 0;
+  }
+}
+
+function undo() {
+  const history = canvasData.undoHistory;
+  const prevStroke = history.pop();
+
+  if (prevStroke) {
+    prevStroke.forEach((obj) => {
+      obj.tile.style.backgroundColor = obj.fromColor;
+    });
+    canvasData.redoHistory.push(prevStroke);
+  }
+}
+
+function redo() {
+  const redoStroke = canvasData.redoHistory.pop();
+
+  if (redoStroke) {
+    canvasData.undoHistory.push(redoStroke);
+    redoStroke.forEach((obj) => {
+      obj.tile.style.backgroundColor = obj.toColor;
+    });
+  }
 }
