@@ -6,7 +6,6 @@ const canvasData = {
   isPainting: false,
   undoHistory: [],
   redoHistory: [],
-  undoLimit: 10,
 };
 
 // Initialize 16x16 grid
@@ -37,11 +36,6 @@ document.addEventListener("mouseup", (e) => {
     // Update history objects
     const pointer = canvasData.undoHistory.length - 1;
     canvasData.undoHistory[pointer].forEach(({ tile }) => handleHistory(tile));
-
-    // Shift stroke arrays if undo limit reached
-    if (canvasData.undoHistory.length > canvasData.undoLimit) {
-      canvasData.undoHistory.shift();
-    }
   }
 });
 
@@ -223,10 +217,16 @@ function paint(tile) {
 }
 
 function handleHistory(tile) {
-  const pointer = canvasData.undoHistory.length - 1;
-  const historyObj = canvasData.undoHistory[pointer].find(
-    (obj) => obj.tile === tile,
-  );
+  const undoLimit = 10;
+
+  // Shift stroke arrays if undo limit reached
+  if (canvasData.undoHistory.length > undoLimit) {
+    canvasData.undoHistory.shift();
+  }
+
+  const historyObj = canvasData.undoHistory
+    .at(-1)
+    .find((obj) => obj.tile === tile);
 
   if (historyObj) {
     // Update the object
@@ -239,7 +239,7 @@ function handleHistory(tile) {
       toColor: null,
     };
 
-    canvasData.undoHistory[pointer].push(obj);
+    canvasData.undoHistory.at(-1).push(obj);
     canvasData.redoHistory.length = 0;
   }
 }
