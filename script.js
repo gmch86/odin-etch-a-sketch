@@ -22,20 +22,20 @@ gridContainer.addEventListener("mousedown", (e) => {
 
   canvasData.isPainting = true;
 
-  // Push empty stroke array to history array
-  canvasData.undoHistory.push([]);
-
-  handleHistory(e.target);
+  handleHistory(e.target, true); // newStroke = true
   paint(e.target);
 });
 
 document.addEventListener("mouseup", (e) => {
   if (canvasData.isPainting) {
     canvasData.isPainting = false;
+  }
 
-    // Update history objects
-    const pointer = canvasData.undoHistory.length - 1;
-    canvasData.undoHistory[pointer].forEach(({ tile }) => handleHistory(tile));
+  // Update `toColor` of each tile in history when stroke is finished
+  if (canvasData.undoHistory.at(-1)) {
+    for (const tile of canvasData.undoHistory.at(-1).keys()) {
+      handleHistory(tile);
+    }
   }
 });
 
@@ -100,11 +100,11 @@ eraserBtn.addEventListener("click", (e) => (canvasData.paintMode = "erase"));
 
 // Undo button
 const undoBtn = document.querySelector(".undo-btn");
-undoBtn.addEventListener("click", undo);
+undoBtn.addEventListener("click", () => undoRedo("undo"));
 
 // Redo button
 const redoBtn = document.querySelector(".redo-btn");
-redoBtn.addEventListener("click", redo);
+redoBtn.addEventListener("click", () => undoRedo("redo"));
 
 // #############################################################################
 
@@ -216,7 +216,8 @@ function paint(tile) {
   }
 }
 
-function handleHistory(tile) {
+function handleHistory(tile, newStroke = false) {
+  // Limit for number of strokes saved in history
   const undoLimit = 10;
 
   // Shift stroke arrays if undo limit reached
@@ -224,45 +225,48 @@ function handleHistory(tile) {
     canvasData.undoHistory.shift();
   }
 
-  const historyObj = canvasData.undoHistory
-    .at(-1)
-    .find((obj) => obj.tile === tile);
+  let historyObj;
 
-  if (historyObj) {
-    // Update the object
-    historyObj.toColor = historyObj.tile.style.backgroundColor;
+  if (!newStroke) {
+    // Check if tile already exists in current stroke
+    historyObj = canvasData.undoHistory.at(-1).get(tile);
   } else {
-    // Create new object and add to history
-    const obj = {
-      tile: tile,
-      fromColor: tile.style.backgroundColor,
-      toColor: null,
-    };
+    // Create a map to begin a new stroke
+    canvasData.undoHistory.push(new Map());
 
-    canvasData.undoHistory.at(-1).push(obj);
+    // Clear redo history
     canvasData.redoHistory.length = 0;
   }
-}
 
-function undo() {
-  const history = canvasData.undoHistory;
-  const prevStroke = history.pop();
-
-  if (prevStroke) {
-    prevStroke.forEach((obj) => {
-      obj.tile.style.backgroundColor = obj.fromColor;
+  if (historyObj) {
+    // If the tile has already been painted in current stroke, update `toColor` to its current background color.
+    // This mainly handles cases where painting a tile doesn’t immediately apply the selected color, such as the `blend` paint mode
+    historyObj.toColor = tile.style.backgroundColor;
+  } else {
+    // Push a new object to stroke array
+    canvasData.undoHistory.at(-1).set(tile, {
+      fromColor: tile.style.backgroundColor,
+      toColor: null,
     });
-    canvasData.redoHistory.push(prevStroke);
   }
 }
 
-function redo() {
-  const redoStroke = canvasData.redoHistory.pop();
+function undoRedo(action) {
+  if (action !== "undo" && action !== "redo") return;
 
-  if (redoStroke) {
-    canvasData.undoHistory.push(redoStroke);
-    redoStroke.forEach((obj) => {
-      obj.tile.style.backgroundColor = obj.toColor;
-    });
+  const isUndo = action === "undo";
+
+  const stroke = isUndo
+    ? canvasData.undoHistory.pop()
+    : canvasData.redoHistory.pop();
+
+  if (stroke) {
+    isUndo
+      ? canvasData.redoHistory.push(stroke)
+      : canvasData.undoHistory.push(stroke);
+
+    for (const [tile, obj] of stroke.entries()) {
+      tile.style.backgroundColor = isUndo ? obj.fromColor : obj.toColor;
+    }
   }
 }
