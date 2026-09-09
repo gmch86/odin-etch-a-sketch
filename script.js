@@ -4,8 +4,8 @@ const canvasData = {
   selectedColor: null,
   paintMode: "fill",
   isPainting: false,
-  undoHistory: [],
-  redoHistory: [],
+  history: [],
+  undoPointer: 0,
 };
 
 // Initialize 16x16 grid
@@ -29,12 +29,12 @@ gridContainer.addEventListener("mousedown", (e) => {
 document.addEventListener("mouseup", (e) => {
   if (canvasData.isPainting) {
     canvasData.isPainting = false;
-  }
 
-  // Update `toColor` of each tile in history when stroke is finished
-  if (canvasData.undoHistory.at(-1)) {
-    for (const tile of canvasData.undoHistory.at(-1).keys()) {
-      handleHistory(tile);
+    // Update `toColor` of each tile in history when stroke is finished
+    if (canvasData.history.at(-1)) {
+      for (const tile of canvasData.history.at(-1).keys()) {
+        handleHistory(tile);
+      }
     }
   }
 });
@@ -74,8 +74,7 @@ buildGridBtn.addEventListener("click", (e) => {
   const size = gridSizeInput.value || canvasData.size;
   createGrid(size);
 
-  canvasData.undoHistory.length = 0;
-  canvasData.redoHistory.length = 0;
+  canvasData.history.length = 0;
 });
 
 // Button for fill paint mode
@@ -100,11 +99,11 @@ eraserBtn.addEventListener("click", (e) => (canvasData.paintMode = "erase"));
 
 // Undo button
 const undoBtn = document.querySelector(".undo-btn");
-undoBtn.addEventListener("click", () => undoRedo("undo"));
+undoBtn.addEventListener("click", undo);
 
 // Redo button
 const redoBtn = document.querySelector(".redo-btn");
-redoBtn.addEventListener("click", () => undoRedo("redo"));
+redoBtn.addEventListener("click", redo);
 
 // #############################################################################
 
@@ -221,21 +220,24 @@ function handleHistory(tile, newStroke = false) {
   const undoLimit = 10;
 
   // Shift stroke arrays if undo limit reached
-  if (canvasData.undoHistory.length > undoLimit) {
-    canvasData.undoHistory.shift();
+  if (canvasData.history.length > undoLimit) {
+    canvasData.history.shift();
   }
 
   let historyObj;
 
   if (!newStroke) {
     // Check if tile already exists in current stroke
-    historyObj = canvasData.undoHistory.at(-1).get(tile);
+    historyObj = canvasData.history.at(-1).get(tile);
   } else {
-    // Create a map to begin a new stroke
-    canvasData.undoHistory.push(new Map());
+    // Handle pointer *
+    if (canvasData.undoPointer < canvasData.history.length - 1) {
+      canvasData.history.length = canvasData.undoPointer + 1; // Discard history after the pointer
+    }
 
-    // Clear redo history
-    canvasData.redoHistory.length = 0;
+    // Create a map to begin a new stroke
+    canvasData.history.push(new Map());
+    canvasData.undoPointer = canvasData.history.length - 1; // Place pointer at last index
   }
 
   if (historyObj) {
@@ -244,29 +246,37 @@ function handleHistory(tile, newStroke = false) {
     historyObj.toColor = tile.style.backgroundColor;
   } else {
     // Push a new object to stroke array
-    canvasData.undoHistory.at(-1).set(tile, {
+    canvasData.history.at(-1).set(tile, {
       fromColor: tile.style.backgroundColor,
       toColor: null,
     });
   }
 }
 
-function undoRedo(action) {
-  if (action !== "undo" && action !== "redo") return;
-
-  const isUndo = action === "undo";
-
-  const stroke = isUndo
-    ? canvasData.undoHistory.pop()
-    : canvasData.redoHistory.pop();
+function undo() {
+  const stroke = canvasData.history[canvasData.undoPointer];
 
   if (stroke) {
-    isUndo
-      ? canvasData.redoHistory.push(stroke)
-      : canvasData.undoHistory.push(stroke);
-
     for (const [tile, obj] of stroke.entries()) {
-      tile.style.backgroundColor = isUndo ? obj.fromColor : obj.toColor;
+      tile.style.backgroundColor = obj.fromColor;
     }
+  }
+
+  if (canvasData.undoPointer >= 0) {
+    canvasData.undoPointer -= 1;
+  }
+}
+
+function redo() {
+  const stroke = canvasData.history[canvasData.undoPointer + 1];
+
+  if (stroke) {
+    for (const [tile, obj] of stroke.entries()) {
+      tile.style.backgroundColor = obj.toColor;
+    }
+  }
+
+  if (canvasData.undoPointer < canvasData.history.length - 1) {
+    canvasData.undoPointer += 1;
   }
 }
