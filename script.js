@@ -97,6 +97,10 @@ lightenBtn.addEventListener("click", (e) => (canvasData.paintMode = "lighten"));
 const eraserBtn = document.querySelector(".eraser-btn");
 eraserBtn.addEventListener("click", (e) => (canvasData.paintMode = "erase"));
 
+// Button for rainbow paint mode
+const rainbowBtn = document.querySelector(".rainbow-btn");
+rainbowBtn.addEventListener("click", (e) => (canvasData.paintMode = "rainbow"));
+
 // Undo button
 const undoBtn = document.querySelector(".undo-btn");
 undoBtn.addEventListener("click", undo);
@@ -209,6 +213,9 @@ function paint(tile) {
     case "lighten":
       blendTile(tileRGBValues, { r: 255, g: 255, b: 255 });
       break;
+    case "rainbow":
+      tile.style.backgroundColor = `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`;
+      break;
     case "erase":
       tile.style.backgroundColor = canvasData.defaultColor;
       break;
@@ -260,9 +267,7 @@ function undo() {
     for (const [tile, obj] of stroke.entries()) {
       tile.style.backgroundColor = obj.fromColor;
     }
-  }
 
-  if (canvasData.undoPointer >= 0) {
     canvasData.undoPointer -= 1;
   }
 }
@@ -274,9 +279,7 @@ function redo() {
     for (const [tile, obj] of stroke.entries()) {
       tile.style.backgroundColor = obj.toColor;
     }
-  }
 
-  if (canvasData.undoPointer < canvasData.history.length - 1) {
     canvasData.undoPointer += 1;
   }
 }
