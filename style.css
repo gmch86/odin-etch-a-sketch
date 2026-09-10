@@ -19,7 +19,18 @@
   width: max-content;
   height: max-content;
   margin: 0 auto;
+  padding: 0 2em;
   color: rgb(80, 80, 80);
+  border: 2px solid transparent;
+
+  border-image: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(220, 220, 220) 20%,
+      rgb(220, 220, 220) 80%,
+      transparent
+    )
+    1;
 
   button {
     cursor: pointer;
@@ -56,7 +67,7 @@ main {
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    padding: 0.5em;
+    padding: 0.5em 1em;
     border: var(--border-light);
     border-radius: 0.6em;
     background-color: var(--bg-light);
@@ -70,6 +81,7 @@ main {
         & input#grid-size {
           width: 60px;
           padding: 0.4em;
+          margin: 0.5em;
           border: var(--border-light);
           border-radius: 0.2em;
         }
@@ -77,13 +89,17 @@ main {
     }
 
     & button.build-grid-btn {
-      width: 5em;
+      width: max-content;
       padding: 0.6em;
       background-color: var(--tool-highlight);
       border: none;
       border-radius: 0.5em;
       color: white;
       font-weight: bold;
+
+      &:hover {
+        filter: brightness(105%);
+      }
     }
 
     & label[for="toggle-grid"] {
@@ -163,6 +179,11 @@ main {
         flex-shrink: 0;
         cursor: pointer;
       }
+
+      &:hover {
+        transform: scale(1.1);
+        transition: transform 0.1s ease;
+      }
     }
   }
 
@@ -202,6 +223,7 @@ main {
 
     & button {
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       width: 5em;
@@ -210,7 +232,9 @@ main {
       border: var(--border-dark);
       border-radius: 0.5em;
       color: inherit;
+      font-size: 0.8em;
       font-weight: bold;
+      gap: 0.2em;
 
       &:not(.selected):hover {
         filter: brightness(103%);
@@ -221,6 +245,10 @@ main {
         border-color: var(--tool-highlight);
         color: white;
       }
+    }
+
+    button.undo-btn {
+      margin-left: 1.2em;
     }
   }
 }
