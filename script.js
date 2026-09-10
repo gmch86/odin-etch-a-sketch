@@ -226,11 +226,6 @@ function handleHistory(tile, newStroke = false) {
   // Limit for number of strokes saved in history
   const undoLimit = 10;
 
-  // Shift stroke arrays if undo limit reached
-  if (canvasData.history.length > undoLimit) {
-    canvasData.history.shift();
-  }
-
   let historyObj;
 
   if (!newStroke) {
@@ -244,7 +239,14 @@ function handleHistory(tile, newStroke = false) {
 
     // Create a map to begin a new stroke
     canvasData.history.push(new Map());
-    canvasData.undoPointer = canvasData.history.length - 1; // Place pointer at last index
+
+    // Shift stroke arrays if undo limit reached
+    if (canvasData.history.length > undoLimit) {
+      canvasData.history.shift();
+    }
+
+    // Place pointer at last index
+    canvasData.undoPointer = canvasData.history.length - 1;
   }
 
   if (historyObj) {
