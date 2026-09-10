@@ -6,6 +6,10 @@
     <title>Etch-a-sketch</title>
     <link rel="stylesheet" href="./style.css" />
     <script src="./script.js" defer></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&icon_names=format_color_fill,looks,ink_eraser,join_left,light_mode,ev_shadow,undo,redo&display=block"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="wrapper">
@@ -16,7 +20,7 @@
             <label for="grid-size"
               >Grid Size<input type="number" id="grid-size" inputmode="decimal"
             /></label>
-            <button type="button" class="build-grid-btn">Build</button>
+            <button type="button" class="build-grid-btn">Create New</button>
           </div>
           <label for="toggle-grid"
             >Toggle Grid<input type="checkbox" id="toggle-grid" checked
@@ -28,25 +32,41 @@
         <section class="grid-container"><!-- Tiles --></section>
         <section class="paint-tools">
           <button type="button" class="paint-mode-btn" data-paintmode="fill">
+            <span class="material-symbols-outlined fill-icon"
+              >format_color_fill</span
+            >
             Fill
           </button>
           <button type="button" class="paint-mode-btn" data-paintmode="blend">
+            <span class="material-symbols-outlined blend-icon">join_left</span>
             Blend
           </button>
           <button type="button" class="paint-mode-btn" data-paintmode="darken">
+            <span class="material-symbols-outlined darken-icon">ev_shadow</span>
             Darken
           </button>
           <button type="button" class="paint-mode-btn" data-paintmode="lighten">
+            <span class="material-symbols-outlined lighten-icon"
+              >light_mode</span
+            >
             Lighten
           </button>
           <button type="button" class="paint-mode-btn" data-paintmode="erase">
+            <span class="material-symbols-outlined eraser-icon"
+              >ink_eraser</span
+            >
             Eraser
           </button>
           <button type="button" class="paint-mode-btn" data-paintmode="rainbow">
+            <span class="material-symbols-outlined rainbow-icon">looks</span>
             Rainbow
           </button>
-          <button type="button" class="undo-btn">Undo</button>
-          <button type="button" class="redo-btn">Redo</button>
+          <button type="button" class="undo-btn">
+            <span class="material-symbols-outlined undo-icon">undo</span>Undo
+          </button>
+          <button type="button" class="redo-btn">
+            <span class="material-symbols-outlined redo-icon">redo</span>Redo
+          </button>
         </section>
       </main>
     </div>
