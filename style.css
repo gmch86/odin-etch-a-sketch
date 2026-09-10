@@ -19,7 +19,11 @@
   width: max-content;
   height: max-content;
   margin: 0 auto;
-  color: rgb(50, 50, 50);
+  color: rgb(80, 80, 80);
+
+  button {
+    cursor: pointer;
+  }
 }
 
 header {
@@ -88,6 +92,8 @@ main {
       width: max-content;
       padding-left: 1.2em;
       cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
 
       input#toggle-grid {
         position: absolute;
@@ -203,6 +209,13 @@ main {
       border: var(--border-dark);
       border-radius: 0.5em;
       color: inherit;
+      font-weight: bold;
+
+      &:hover {
+        background-color: var(--tool-highlight);
+        border-color: var(--tool-highlight);
+        color: white;
+      }
     }
   }
 }
