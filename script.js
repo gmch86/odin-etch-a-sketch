@@ -2,7 +2,7 @@ const canvasData = {
   gridSize: 16,
   defaultColor: "rgb(255, 255, 255)",
   selectedColor: null,
-  paintMode: "fill",
+  paintMode: "",
   isPainting: false,
   history: [],
   undoPointer: 0,
@@ -77,29 +77,23 @@ buildGridBtn.addEventListener("click", (e) => {
   canvasData.history.length = 0;
 });
 
-// Button for fill paint mode
-const fillBtn = document.querySelector(".fill-btn");
-fillBtn.addEventListener("click", (e) => (canvasData.paintMode = "fill"));
+// Paint mode buttons
+const paintModeBtns = document.querySelectorAll(".paint-mode-btn");
+[...paintModeBtns].forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    canvasData.paintMode = btn.dataset.paintmode;
 
-// Button for blend paint mode
-const blendBtn = document.querySelector(".blend-btn");
-blendBtn.addEventListener("click", (e) => (canvasData.paintMode = "blend"));
+    // Toggle "selected" class onto the button for styling
+    const currSelected = document.querySelector(".paint-mode-btn.selected");
+    if (currSelected) currSelected.classList.remove("selected");
+    btn.classList.add("selected");
+  });
 
-// Button for darken paint mode
-const darkenBtn = document.querySelector(".darken-btn");
-darkenBtn.addEventListener("click", (e) => (canvasData.paintMode = "darken"));
-
-// Button for lighten paint mode
-const lightenBtn = document.querySelector(".lighten-btn");
-lightenBtn.addEventListener("click", (e) => (canvasData.paintMode = "lighten"));
-
-// Erase for erase paint mode
-const eraserBtn = document.querySelector(".eraser-btn");
-eraserBtn.addEventListener("click", (e) => (canvasData.paintMode = "erase"));
-
-// Button for rainbow paint mode
-const rainbowBtn = document.querySelector(".rainbow-btn");
-rainbowBtn.addEventListener("click", (e) => (canvasData.paintMode = "rainbow"));
+  // Simulate click on "fill" button to select it by default
+  if (btn.dataset.paintmode === "fill") {
+    btn.dispatchEvent(new Event("click"));
+  }
+});
 
 // Undo button
 const undoBtn = document.querySelector(".undo-btn");
