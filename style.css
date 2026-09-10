@@ -68,10 +68,14 @@ main {
       flex: 1;
 
       .tile {
-        outline: 1px solid black;
+        outline: none;
         flex: 1;
       }
     }
+  }
+
+  &:has(#toggle-grid:checked) .tile {
+    outline: 1px solid black;
   }
 
   section.paint-tools {
