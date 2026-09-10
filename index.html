@@ -8,25 +8,33 @@
     <script src="./script.js" defer></script>
   </head>
   <body>
-    <header><h1>Etch-a-sketch</h1></header>
-    <main>
-      <label for="grid-size"
-        >Grid Size<input type="text" id="grid-size"
-      /></label>
-      <button type="button" class="build-grid-btn">Build</button>
-      <div class="color-select-container">
-        <input type="color" title="color-select" id="color-select" />
-      </div>
-      <div class="grid-container"></div>
-      <button type="button" class="fill-btn">Fill</button>
-      <button type="button" class="blend-btn">Blend</button>
-      <button type="button" class="darken-btn">Darken</button>
-      <button type="button" class="lighten-btn">Lighten</button>
-      <button type="button" class="eraser-btn">Eraser</button>
-      <button type="button" class="undo-btn">Undo</button>
-      <button type="button" class="redo-btn">Redo</button>
-      <button type="button" class="rainbow-btn">Rainbow</button>
-    </main>
+    <div class="wrapper">
+      <header><h1>Etch-a-sketch</h1></header>
+      <main>
+        <section class="grid-settings">
+          <div class="grid-size-container">
+            <label for="grid-size"
+              >Grid Size<input type="number" id="grid-size" inputmode="decimal"
+            /></label>
+            <button type="button" class="build-grid-btn">Build</button>
+          </div>
+          <label for="color-select">
+            <input type="color" title="color-select" id="color-select" />
+          </label>
+        </section>
+        <section class="grid-container"><!-- Tiles --></section>
+        <section class="paint-tools">
+          <button type="button" class="fill-btn">Fill</button>
+          <button type="button" class="blend-btn">Blend</button>
+          <button type="button" class="darken-btn">Darken</button>
+          <button type="button" class="lighten-btn">Lighten</button>
+          <button type="button" class="eraser-btn">Eraser</button>
+          <button type="button" class="undo-btn">Undo</button>
+          <button type="button" class="redo-btn">Redo</button>
+          <button type="button" class="rainbow-btn">Rainbow</button>
+        </section>
+      </main>
+    </div>
     <footer>
       <p>&copy; 2026 gmch86 - The Odin Project</p>
     </footer>
