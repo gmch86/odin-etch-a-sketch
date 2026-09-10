@@ -48,9 +48,50 @@ header {
   background-color: var(--header-bg);
   margin: 1em;
 
-  h1 {
+  & h1 {
+    position: relative;
     color: white;
     margin: 0;
+  }
+
+  & .header-left,
+  & .header-right {
+    height: 4px;
+    margin: 0 1em;
+    flex: 1;
+
+    background: linear-gradient(
+      90deg,
+      #ff0000 0%,
+      #ff0000 13.667%,
+      transparent 13.667%,
+      transparent 16.667%,
+
+      #fe9400 16.667%,
+      #fe9400 30.333%,
+      transparent 30.333%,
+      transparent 33.333%,
+
+      #fffb00 33.333%,
+      #fffb00 47%,
+      transparent 47%,
+      transparent 50%,
+
+      #00ff24 50%,
+      #00ff24 63.668%,
+      transparent 63.668%,
+      transparent 66.668%,
+
+      #0030ff 66.668%,
+      #0030ff 80.333%,
+      transparent 80.333%,
+      transparent 83.333%,
+
+      #ff00fc 83.333%,
+      #ff00fc 97%,
+      transparent 97%,
+      transparent 100%
+    );
   }
 }
 
@@ -127,7 +168,7 @@ main {
         width: 1.6em;
         height: 1.1em;
 
-        background-color: rgb(220, 220, 220);
+        background-color: rgb(200, 200, 200);
         border: 1px solid black;
       }
 
@@ -138,7 +179,7 @@ main {
         left: 0;
         top: 50%;
 
-        background-color: rgb(180, 180, 180);
+        background-color: rgb(160, 160, 160);
 
         width: 0.6em;
         height: 0.8em;
